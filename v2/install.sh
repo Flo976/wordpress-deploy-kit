@@ -54,11 +54,11 @@ load_env() {
 
     info "Chargement de la configuration depuis $ENV_FILE"
 
-    # Normalise les fins de lignes Windows (CRLF) vers LF
+    # Normaliser les fins de lignes Windows, au cas où
     sed -i 's/\r$//' "$ENV_FILE"
 
-    # Source simple et robuste (sans pipeline)
-    set +o pipefail     # évite que 'set -o pipefail' casse le 'source' si un export échoue
+    # Sourcing robuste : pas de process substitution, neutraliser pipefail autour du source
+    set +o pipefail
     set -a
     # shellcheck disable=SC1090
     . "$ENV_FILE"
