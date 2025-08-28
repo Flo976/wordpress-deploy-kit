@@ -60,6 +60,8 @@ check_root() {
       echo "DEBUG: Sourced successfully"
       set +a
     
+
+
     # Variables par défaut
     WEB_ROOT="${WEB_ROOT:-/var/www/html}"
     PHP_VERSION="${PHP_VERSION:-8.4}"
@@ -67,6 +69,11 @@ check_root() {
     ENABLE_SSL="${ENABLE_SSL:-true}"
     SSL_STAGING="${SSL_STAGING:-false}"
     ENABLE_FIREWALL="${ENABLE_FIREWALL:-true}"
+
+      echo "DEBUG: DOMAIN='${DOMAIN:-}'"
+  echo "DEBUG: EMAIL='${EMAIL:-}'"
+  echo "DEBUG: DB_NAME='${DB_NAME:-}'"
+  echo "DEBUG: DB_USER='${DB_USER:-}'"
     
     # Validation des variables requises
     [[ -z "${DOMAIN:-}" ]] && error "DOMAIN est requis dans le fichier env"
