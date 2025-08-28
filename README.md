@@ -90,7 +90,7 @@ This deployment system provides a complete, production-ready WordPress stack wit
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd wp-azure
+cd wordpress-deploy-kit
 
 # Start local environment
 make up

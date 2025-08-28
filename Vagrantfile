@@ -6,7 +6,7 @@
 # Description: Local testing environment for WordPress deployment
 
 # Configurable variables via environment
-VAGRANT_BOX = ENV.fetch("VAGRANT_BOX", "ubuntu/jammy64")
+VAGRANT_BOX = ENV.fetch("VAGRANT_BOX", "bento/ubuntu-24.04")
 VAGRANT_RAM = ENV.fetch("VAGRANT_RAM", "4096").to_i
 VAGRANT_CPUS = ENV.fetch("VAGRANT_CPUS", "2").to_i
 VAGRANT_IP = ENV.fetch("VAGRANT_IP", "192.168.56.10")
