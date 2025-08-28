@@ -247,22 +247,7 @@ else
 fi
 
 # Snippet tuning idempotent
-log "Tuning MariaDB…"
-MDB_TUNE="/etc/mysql/mariadb.conf.d/99-tuning.cnf"
-write_file "$MDB_TUNE" "[mysqld]
-character-set-server = utf8mb4
-collation-server     = utf8mb4_0900_ai_ci
 
-innodb_buffer_pool_size = $INNODB_BUFFER_POOL_SIZE
-innodb_log_file_size    = $INNODB_LOG_FILE_SIZE
-max_connections         = $MDB_MAX_CONNECTIONS
-tmp_table_size          = $TMP_TABLE_SIZE
-max_heap_table_size     = $MAX_HEAP_TABLE_SIZE
-
-slow_query_log = ON
-slow_query_log_file = /var/log/mysql/slow.log
-performance_schema = ON
-"
 install -d -m 0755 /var/log/mysql
 touch /var/log/mysql/slow.log
 chown mysql:mysql /var/log/mysql/slow.log || true
