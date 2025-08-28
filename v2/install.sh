@@ -3,6 +3,8 @@
 # Ubuntu 24.04 LTS avec Apache2, PHP 8.4, MariaDB et Certbot
 
 set -Eeuo pipefail
+set -x; sudo bash install.sh 2>&1 | tee /tmp/install-trace.log
+
 
 # Variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
