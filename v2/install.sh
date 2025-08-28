@@ -47,32 +47,42 @@ check_root() {
 
 # Chargement du fichier d'environnement
 load_env() {
-      echo "DEBUG: Checking ENV_FILE: $ENV_FILE"
-      if [[ ! -f "$ENV_FILE" ]]; then
-          error "Fichier d'environnement '$ENV_FILE' introuvable."
-      fi
+    if [[ ! -f "$ENV_FILE" ]]; then
+        error "Fichier d'environnement '$ENV_FILE' introuvable. Copiez env.example vers env et configurez-le."
+    fi
 
-      info "Chargement de la configuration depuis $ENV_FILE"
+    info "Chargement de la configuration depuis $ENV_FILE"
 
-      # Simple source du fichier
-      set -a
-      source "$ENV_FILE"
-      set +a
+    # Normalise les fins de lignes Windows (CRLF) vers LF
+    sed -i 's/\r$//' "$ENV_FILE"
 
-      # Variables par défaut
-      WEB_ROOT="${WEB_ROOT:-/var/www/html}"
-      PHP_VERSION="${PHP_VERSION:-8.4}"
-      MARIADB_VERSION="${MARIADB_VERSION:-11.4}"
-      ENABLE_SSL="${ENABLE_SSL:-true}"
-      SSL_STAGING="${SSL_STAGING:-false}"
-      ENABLE_FIREWALL="${ENABLE_FIREWALL:-true}"
+    # Source simple et robuste (sans pipeline)
+    set +o pipefail     # évite que 'set -o pipefail' casse le 'source' si un export échoue
+    set -a
+    # shellcheck disable=SC1090
+    . "$ENV_FILE"
+    set +a
+    set -o pipefail
 
-      # Validation
-      [[ -z "${DOMAIN:-}" ]] && error "DOMAIN est requis dans le fichier env"
-      [[ -z "${EMAIL:-}" ]] && error "EMAIL est requis dans le fichier env"
-      [[ -z "${DB_PASSWORD:-}" ]] && error "DB_PASSWORD est requis dans le fichier env"
-      [[ -z "${DB_ROOT_PASSWORD:-}" ]] && error "DB_ROOT_PASSWORD est requis dans le fichier env"
-      [[ -z "${WP_ADMIN_PASSWORD:-}" ]] && error "WP_ADMIN_PASSWORD est requis dans le fichier env"
+    # Valeurs par défaut
+    WEB_ROOT="${WEB_ROOT:-/var/www/html}"
+    PHP_VERSION="${PHP_VERSION:-8.4}"
+    MARIADB_VERSION="${MARIADB_VERSION:-11.4}"
+    ENABLE_SSL="${ENABLE_SSL:-true}"
+    SSL_STAGING="${SSL_STAGING:-false}"
+    ENABLE_FIREWALL="${ENABLE_FIREWALL:-true}"
+
+    # Contrôles
+    [[ -z "${DOMAIN:-}" ]] && error "DOMAIN est requis dans le fichier env"
+    [[ -z "${EMAIL:-}" ]] && error "EMAIL est requis dans le fichier env"
+    [[ -z "${DB_NAME:-}" ]] && error "DB_NAME est requis dans le fichier env"
+    [[ -z "${DB_USER:-}" ]] && error "DB_USER est requis dans le fichier env"
+    [[ -z "${DB_PASSWORD:-}" ]] && error "DB_PASSWORD est requis dans le fichier env"
+    [[ -z "${DB_ROOT_PASSWORD:-}" ]] && error "DB_ROOT_PASSWORD est requis dans le fichier env"
+    [[ -z "${WP_TITLE:-}" ]] && error "WP_TITLE est requis dans le fichier env"
+    [[ -z "${WP_ADMIN_USER:-}" ]] && error "WP_ADMIN_USER est requis dans le fichier env"
+    [[ -z "${WP_ADMIN_PASSWORD:-}" ]] && error "WP_ADMIN_PASSWORD est requis dans le fichier env"
+    [[ -z "${WP_ADMIN_EMAIL:-}" ]] && error "WP_ADMIN_EMAIL est requis dans le fichier env"
 }
 
 # Mise à jour du système
