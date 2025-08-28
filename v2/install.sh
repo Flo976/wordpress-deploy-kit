@@ -46,15 +46,19 @@ check_root() {
 }
 
 # Chargement du fichier d'environnement
-load_env() {
-    if [[ ! -f "$ENV_FILE" ]]; then
-        error "Fichier d'environnement '$ENV_FILE' introuvable. Copiez env.example vers env et configurez-le."
-    fi
-    
-    info "Chargement de la configuration depuis $ENV_FILE"
-    set -a
-    source <(grep -E '^[A-Za-z_][A-Za-z0-9_]*=' "$ENV_FILE" | sed 's/\r$//')
-    set +a
+  load_env() {
+      echo "DEBUG: Checking ENV_FILE: $ENV_FILE"
+      if [[ ! -f "$ENV_FILE" ]]; then
+          error "Fichier d'environnement '$ENV_FILE' introuvable. Copiez env.example vers env et configurez-le."     
+      fi
+
+      echo "DEBUG: Loading configuration"
+      info "Chargement de la configuration depuis $ENV_FILE"
+      set -a
+      echo "DEBUG: About to source env file"
+      source <(grep -E '^[A-Za-z_][A-Za-z0-9_]*=' "$ENV_FILE" | sed 's/\r$//')
+      echo "DEBUG: Sourced successfully"
+      set +a
     
     # Variables par défaut
     WEB_ROOT="${WEB_ROOT:-/var/www/html}"
