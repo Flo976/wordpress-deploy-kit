@@ -77,9 +77,9 @@ check_root() {
 configure_installation() {
     echo -e "${BLUE}"
     echo "╔══════════════════════════════════════════════════════════════╗"
-    echo "║                 CONFIGURATION WORDPRESS                     ║"
+    echo "║                         WORDPRESS                            ║"
     echo "╠══════════════════════════════════════════════════════════════╣"
-    echo "║  Configuration interactive de votre installation WordPress  ║"
+    echo "║  Interactive WordPress Installation by Florent Didelot       ║"
     echo "╚══════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
     
@@ -100,7 +100,7 @@ configure_installation() {
     read_input "Utilisateur admin WP" "admin" "WP_ADMIN_USER"
     read_input "Mot de passe admin WP" "" "WP_ADMIN_PASSWORD" "true"
     read_input "Email admin WP" "$EMAIL" "WP_ADMIN_EMAIL"
-    read_input "Langue WordPress" "fr_FR" "WP_LOCALE"
+    read_input "Langue WordPress" "en_US" "WP_LOCALE"
     
     # Options avancées
     echo -e "\n${BLUE}=== Options Avancées ===${NC}"
@@ -252,18 +252,21 @@ install_mariadb() {
     sudo systemctl enable mariadb
     sudo systemctl start mariadb
     
-    # Sécurisation de l'installation
-    sudo mysql -e "UPDATE mysql.user SET Password=PASSWORD('${DB_ROOT_PASSWORD}') WHERE User='root';"
-    sudo mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
-    sudo mysql -e "DELETE FROM mysql.user WHERE User='';"
-    sudo mysql -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';"
-    sudo mysql -e "FLUSH PRIVILEGES;"
+    # Sécurisation de l'installation (compatible MariaDB 11.4)
+    sudo mariadb -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASSWORD}';" || \
+    sudo mariadb -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${DB_ROOT_PASSWORD}');" || \
+    sudo mariadb -e "UPDATE mysql.user SET authentication_string = PASSWORD('${DB_ROOT_PASSWORD}') WHERE User = 'root' AND Host = 'localhost';"
+    
+    sudo mariadb -u root -p"${DB_ROOT_PASSWORD}" -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
+    sudo mariadb -u root -p"${DB_ROOT_PASSWORD}" -e "DELETE FROM mysql.user WHERE User='';"
+    sudo mariadb -u root -p"${DB_ROOT_PASSWORD}" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';"
+    sudo mariadb -u root -p"${DB_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
     
     # Création de la base et de l'utilisateur
-    sudo mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-    sudo mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
-    sudo mysql -u root -p"${DB_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'localhost';"
-    sudo mysql -u root -p"${DB_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
+    sudo mariadb -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+    sudo mariadb -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
+    sudo mariadb -u root -p"${DB_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'localhost';"
+    sudo mariadb -u root -p"${DB_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
     
     success "MariaDB ${MARIADB_VERSION} installé et configuré"
 }
