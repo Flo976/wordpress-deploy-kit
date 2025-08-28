@@ -46,45 +46,33 @@ check_root() {
 }
 
 # Chargement du fichier d'environnement
-  load_env() {
+load_env() {
       echo "DEBUG: Checking ENV_FILE: $ENV_FILE"
       if [[ ! -f "$ENV_FILE" ]]; then
-          error "Fichier d'environnement '$ENV_FILE' introuvable. Copiez env.example vers env et configurez-le."     
+          error "Fichier d'environnement '$ENV_FILE' introuvable."
       fi
 
-      echo "DEBUG: Loading configuration"
       info "Chargement de la configuration depuis $ENV_FILE"
+
+      # Simple source du fichier
       set -a
-      echo "DEBUG: About to source env file"
-      source <(grep -E '^[A-Za-z_][A-Za-z0-9_]*=' "$ENV_FILE" | sed 's/\r$//')
-      echo "DEBUG: Sourced successfully"
+      source "$ENV_FILE"
       set +a
-    
 
+      # Variables par défaut
+      WEB_ROOT="${WEB_ROOT:-/var/www/html}"
+      PHP_VERSION="${PHP_VERSION:-8.4}"
+      MARIADB_VERSION="${MARIADB_VERSION:-11.4}"
+      ENABLE_SSL="${ENABLE_SSL:-true}"
+      SSL_STAGING="${SSL_STAGING:-false}"
+      ENABLE_FIREWALL="${ENABLE_FIREWALL:-true}"
 
-    # Variables par défaut
-    WEB_ROOT="${WEB_ROOT:-/var/www/html}"
-    PHP_VERSION="${PHP_VERSION:-8.4}"
-    MARIADB_VERSION="${MARIADB_VERSION:-11.4}"
-    ENABLE_SSL="${ENABLE_SSL:-true}"
-    SSL_STAGING="${SSL_STAGING:-false}"
-    ENABLE_FIREWALL="${ENABLE_FIREWALL:-true}"
-
-      echo "DEBUG: DOMAIN='${DOMAIN:-}'"
-  echo "DEBUG: EMAIL='${EMAIL:-}'"
-  echo "DEBUG: DB_NAME='${DB_NAME:-}'"
-  echo "DEBUG: DB_USER='${DB_USER:-}'"
-    
-    # Validation des variables requises
-    [[ -z "${DOMAIN:-}" ]] && error "DOMAIN est requis dans le fichier env"
-    [[ -z "${EMAIL:-}" ]] && error "EMAIL est requis dans le fichier env"
-    [[ -z "${DB_NAME:-}" ]] && error "DB_NAME est requis dans le fichier env"
-    [[ -z "${DB_USER:-}" ]] && error "DB_USER est requis dans le fichier env"
-    [[ -z "${DB_PASSWORD:-}" ]] && error "DB_PASSWORD est requis dans le fichier env"
-    [[ -z "${DB_ROOT_PASSWORD:-}" ]] && error "DB_ROOT_PASSWORD est requis dans le fichier env"
-    [[ -z "${WP_ADMIN_USER:-}" ]] && error "WP_ADMIN_USER est requis dans le fichier env"
-    [[ -z "${WP_ADMIN_PASSWORD:-}" ]] && error "WP_ADMIN_PASSWORD est requis dans le fichier env"
-    [[ -z "${WP_ADMIN_EMAIL:-}" ]] && error "WP_ADMIN_EMAIL est requis dans le fichier env"
+      # Validation
+      [[ -z "${DOMAIN:-}" ]] && error "DOMAIN est requis dans le fichier env"
+      [[ -z "${EMAIL:-}" ]] && error "EMAIL est requis dans le fichier env"
+      [[ -z "${DB_PASSWORD:-}" ]] && error "DB_PASSWORD est requis dans le fichier env"
+      [[ -z "${DB_ROOT_PASSWORD:-}" ]] && error "DB_ROOT_PASSWORD est requis dans le fichier env"
+      [[ -z "${WP_ADMIN_PASSWORD:-}" ]] && error "WP_ADMIN_PASSWORD est requis dans le fichier env"
 }
 
 # Mise à jour du système
