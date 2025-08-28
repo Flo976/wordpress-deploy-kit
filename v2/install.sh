@@ -91,28 +91,28 @@ check_root() {
 update_system() {
     info "Mise à jour du système Ubuntu 24.04..."
     export DEBIAN_FRONTEND=noninteractive
-    apt update -y
-    apt upgrade -y
-    apt install -y software-properties-common apt-transport-https ca-certificates curl gnupg lsb-release wget unzip
+    sudo apt update -y
+    sudo apt upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+    sudo apt install -y software-properties-common apt-transport-https ca-certificates curl gnupg lsb-release wget unzip
     success "Système mis à jour"
 }
 
 # Installation d'Apache2
 install_apache() {
     info "Installation d'Apache2..."
-    apt install -y apache2
+    sudo apt install -y apache2
     
     # Activation des modules nécessaires
-    a2enmod rewrite
-    a2enmod ssl
-    a2enmod headers
-    a2enmod expires
-    a2enmod deflate
-    a2enmod http2
+    sudo a2enmod rewrite
+    sudo a2enmod ssl
+    sudo a2enmod headers
+    sudo a2enmod expires
+    sudo a2enmod deflate
+    sudo a2enmod http2
     
     # Configuration de base
-    systemctl enable apache2
-    systemctl start apache2
+    sudo systemctl enable apache2
+    sudo systemctl start apache2
     
     success "Apache2 installé et configuré"
 }
@@ -122,11 +122,11 @@ install_php() {
     info "Installation de PHP ${PHP_VERSION}..."
     
     # Ajout du dépôt Ondrej pour PHP 8.4
-    add-apt-repository -y ppa:ondrej/php
-    apt update -y
+    sudo add-apt-repository -y ppa:ondrej/php
+    sudo apt update -y
     
     # Installation de PHP et extensions
-    apt install -y \
+    sudo apt install -y \
         php${PHP_VERSION} \
         php${PHP_VERSION}-fpm \
         php${PHP_VERSION}-mysql \
@@ -144,14 +144,14 @@ install_php() {
     
     # Configuration PHP
     PHP_INI="/etc/php/${PHP_VERSION}/apache2/php.ini"
-    sed -i 's/memory_limit = .*/memory_limit = 256M/' "$PHP_INI"
-    sed -i 's/upload_max_filesize = .*/upload_max_filesize = 64M/' "$PHP_INI"
-    sed -i 's/post_max_size = .*/post_max_size = 64M/' "$PHP_INI"
-    sed -i 's/max_execution_time = .*/max_execution_time = 300/' "$PHP_INI"
-    sed -i 's/max_input_vars = .*/max_input_vars = 3000/' "$PHP_INI"
+    sudo sed -i 's/memory_limit = .*/memory_limit = 256M/' "$PHP_INI"
+    sudo sed -i 's/upload_max_filesize = .*/upload_max_filesize = 64M/' "$PHP_INI"
+    sudo sed -i 's/post_max_size = .*/post_max_size = 64M/' "$PHP_INI"
+    sudo sed -i 's/max_execution_time = .*/max_execution_time = 300/' "$PHP_INI"
+    sudo sed -i 's/max_input_vars = .*/max_input_vars = 3000/' "$PHP_INI"
     
     # Configuration OPcache
-    cat >> "$PHP_INI" << EOF
+    sudo tee -a "$PHP_INI" > /dev/null << EOF
 
 ; OPcache configuration
 opcache.enable=1
@@ -165,8 +165,8 @@ opcache.jit=1255
 opcache.jit_buffer_size=128M
 EOF
     
-    systemctl enable php${PHP_VERSION}-fpm
-    systemctl start php${PHP_VERSION}-fpm
+    sudo systemctl enable php${PHP_VERSION}-fpm
+    sudo systemctl start php${PHP_VERSION}-fpm
     
     success "PHP ${PHP_VERSION} installé et configuré"
 }
@@ -179,25 +179,25 @@ install_mariadb() {
     curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-${MARIADB_VERSION}"
     
     # Installation
-    apt update -y
-    apt install -y mariadb-server mariadb-client
+    sudo apt update -y
+    sudo apt install -y mariadb-server mariadb-client
     
     # Configuration sécurisée
-    systemctl enable mariadb
-    systemctl start mariadb
+    sudo systemctl enable mariadb
+    sudo systemctl start mariadb
     
     # Sécurisation de l'installation
-    mysql -e "UPDATE mysql.user SET Password=PASSWORD('${DB_ROOT_PASSWORD}') WHERE User='root';"
-    mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
-    mysql -e "DELETE FROM mysql.user WHERE User='';"
-    mysql -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';"
-    mysql -e "FLUSH PRIVILEGES;"
+    sudo mysql -e "UPDATE mysql.user SET Password=PASSWORD('${DB_ROOT_PASSWORD}') WHERE User='root';"
+    sudo mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
+    sudo mysql -e "DELETE FROM mysql.user WHERE User='';"
+    sudo mysql -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';"
+    sudo mysql -e "FLUSH PRIVILEGES;"
     
     # Création de la base et de l'utilisateur
-    mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-    mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
-    mysql -u root -p"${DB_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'localhost';"
-    mysql -u root -p"${DB_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
+    sudo mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+    sudo mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
+    sudo mysql -u root -p"${DB_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'localhost';"
+    sudo mysql -u root -p"${DB_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
     
     success "MariaDB ${MARIADB_VERSION} installé et configuré"
 }
@@ -207,7 +207,7 @@ install_wpcli() {
     info "Installation de WP-CLI..."
     curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
     chmod +x wp-cli.phar
-    mv wp-cli.phar /usr/local/bin/wp
+    sudo mv wp-cli.phar /usr/local/bin/wp
     success "WP-CLI installé"
 }
 
@@ -216,17 +216,17 @@ install_wordpress() {
     info "Installation de WordPress..."
     
     # Création du répertoire web
-    mkdir -p "$WEB_ROOT"
+    sudo mkdir -p "$WEB_ROOT"
     cd "$WEB_ROOT"
     
     # Suppression du contenu par défaut d'Apache
-    rm -f index.html
+    sudo rm -f index.html
     
     # Téléchargement de WordPress
-    wp core download --locale="${WP_LOCALE:-fr_FR}" --allow-root
+    sudo wp core download --locale="${WP_LOCALE:-fr_FR}" --allow-root
     
     # Configuration de WordPress
-    wp config create \
+    sudo wp config create \
         --dbname="$DB_NAME" \
         --dbuser="$DB_USER" \
         --dbpass="$DB_PASSWORD" \
@@ -235,7 +235,7 @@ install_wordpress() {
         --allow-root
     
     # Installation du site
-    wp core install \
+    sudo wp core install \
         --url="https://$DOMAIN" \
         --title="$WP_TITLE" \
         --admin_user="$WP_ADMIN_USER" \
@@ -245,18 +245,18 @@ install_wordpress() {
         --allow-root
     
     # Configuration avancée
-    wp config set FS_METHOD direct --allow-root
-    wp config set DISABLE_WP_CRON true --raw --allow-root
-    wp config set WP_DEBUG false --raw --allow-root
+    sudo wp config set FS_METHOD direct --allow-root
+    sudo wp config set DISABLE_WP_CRON true --raw --allow-root
+    sudo wp config set WP_DEBUG false --raw --allow-root
     
     # Permaliens
-    wp rewrite structure "/%postname%/" --hard --allow-root
+    sudo wp rewrite structure "/%postname%/" --hard --allow-root
     
     # Permissions
-    chown -R www-data:www-data "$WEB_ROOT"
-    find "$WEB_ROOT" -type d -exec chmod 755 {} \;
-    find "$WEB_ROOT" -type f -exec chmod 644 {} \;
-    chmod 600 "$WEB_ROOT/wp-config.php"
+    sudo chown -R www-data:www-data "$WEB_ROOT"
+    sudo find "$WEB_ROOT" -type d -exec chmod 755 {} \;
+    sudo find "$WEB_ROOT" -type f -exec chmod 644 {} \;
+    sudo chmod 600 "$WEB_ROOT/wp-config.php"
     
     success "WordPress installé et configuré"
 }
@@ -265,7 +265,7 @@ install_wordpress() {
 configure_apache_vhost() {
     info "Configuration du Virtual Host Apache..."
     
-    cat > "/etc/apache2/sites-available/$DOMAIN.conf" << EOF
+    sudo tee "/etc/apache2/sites-available/$DOMAIN.conf" > /dev/null << EOF
 <VirtualHost *:80>
     ServerName $DOMAIN
     DocumentRoot $WEB_ROOT
@@ -296,9 +296,9 @@ configure_apache_vhost() {
 EOF
     
     # Activation du site
-    a2ensite "$DOMAIN.conf"
-    a2dissite 000-default
-    systemctl reload apache2
+    sudo a2ensite "$DOMAIN.conf"
+    sudo a2dissite 000-default
+    sudo systemctl reload apache2
     
     success "Virtual Host configuré"
 }
@@ -308,7 +308,7 @@ install_certbot() {
     if [[ "$ENABLE_SSL" == "true" ]]; then
         info "Installation de Certbot pour SSL..."
         
-        apt install -y certbot python3-certbot-apache
+        sudo apt install -y certbot python3-certbot-apache
         
         # Options pour staging/production
         CERTBOT_OPTIONS="--non-interactive --agree-tos --email $EMAIL"
@@ -318,11 +318,11 @@ install_certbot() {
         fi
         
         # Obtention du certificat
-        certbot --apache $CERTBOT_OPTIONS -d "$DOMAIN"
+        sudo certbot --apache $CERTBOT_OPTIONS -d "$DOMAIN"
         
         # Auto-renouvellement
-        systemctl enable certbot.timer
-        systemctl start certbot.timer
+        sudo systemctl enable certbot.timer
+        sudo systemctl start certbot.timer
         
         success "SSL configuré avec Let's Encrypt"
     else
@@ -335,17 +335,17 @@ configure_firewall() {
     if [[ "$ENABLE_FIREWALL" == "true" ]]; then
         info "Configuration du pare-feu UFW..."
         
-        ufw --force reset
-        ufw default deny incoming
-        ufw default allow outgoing
+        sudo ufw --force reset
+        sudo ufw default deny incoming
+        sudo ufw default allow outgoing
         
         # Ports essentiels
-        ufw allow ssh
-        ufw allow 80/tcp
-        ufw allow 443/tcp
+        sudo ufw allow ssh
+        sudo ufw allow 80/tcp
+        sudo ufw allow 443/tcp
         
         # Activation
-        ufw --force enable
+        sudo ufw --force enable
         
         success "Pare-feu configuré"
     else
