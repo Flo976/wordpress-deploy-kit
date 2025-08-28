@@ -1,0 +1,265 @@
+# WordPress Deployment .gitignore
+# Author: Florent Didelot
+
+# Environment configuration (contains sensitive data)
+deploy/env
+
+# Vagrant
+.vagrant/
+*.box
+
+# VirtualBox
+.VirtualBox/
+*.vbox-prev
+*.vdi
+*.vmdk
+*.vhd
+
+# Logs
+*.log
+logs/
+deploy/logs/
+
+# Backup files
+*.backup
+*.bak
+*.tar.gz
+*.sql
+*.zip
+backups/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+*~
+.#*
+#*#
+*.swp
+*.swo
+
+# SSH keys
+*.key
+*.pem
+*.pub
+id_rsa*
+id_ecdsa*
+id_ed25519*
+
+# SSL certificates
+*.crt
+*.cert
+*.p12
+*.pfx
+*.jks
+ssl/
+certs/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-*
+.atom/
+
+# Node.js (if using for build tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# PHP Composer
+vendor/
+composer.lock
+composer.phar
+
+# WordPress specific
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+wp-content/backup*/
+wp-content/backups/
+wp-content/upgrade/
+wp-content/w3tc-config/
+
+# Database files
+*.sql
+*.sqlite
+*.db
+mysql_data/
+
+# Cache directories
+cache/
+tmp/
+.cache/
+
+# System files
+.htaccess
+error_log
+access_log
+
+# Terraform (if used for cloud deployment)
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Ansible (if used for configuration management)
+*.retry
+hosts
+group_vars/
+host_vars/
+
+# Docker (if used)
+Dockerfile.local
+docker-compose.override.yml
+.dockerignore
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Configuration files with sensitive data
+config.local.*
+settings.local.*
+.env
+.env.local
+.env.*.local
+
+# Test results
+test-results/
+coverage/
+.nyc_output/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Vagrant specific
+.vagrant/
+vagrant_ansible_inventory_*
+
+# Local development overrides
+Vagrantfile.local
+Makefile.local
+docker-compose.local.yml
+
+# Performance and monitoring data
+*.perf
+*.prof
+monitoring/
+
+# Documentation build artifacts
+docs/_build/
+site/
+
+# Package files
+*.deb
+*.rpm
+*.msi
+*.pkg
+
+# Compiled binaries
+*.exe
+*.o
+*.so
+*.dll
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# next.js build output
+.next
+
+# nuxt.js build output
+.nuxt
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless
+
+# Local environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+*.code-workspace
+
+# JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Project specific ignores
+deploy/marker_*
+deploy/.deployed
+*.deployed
+
+# Custom local files
+*.local
+local/
+private/
+
+# Experimental files
+experiment/
+test/
+sandbox/
